@@ -1,4 +1,4 @@
-(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.SvgSaver = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.SvgSaver = f()}})(function(){var define,module,exports;return (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
@@ -11,13 +11,39 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'd
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
+var _fileSaver = require('file-saver');
+
+var _fileSaver2 = _interopRequireDefault(_fileSaver);
+
 var _computedStyles = require('computed-styles');
 
 var _computedStyles2 = _interopRequireDefault(_computedStyles);
 
-var _fileSaver = require('file-saver');
+/* Some simple utilities */
 
-var _fileSaver2 = _interopRequireDefault(_fileSaver);
+var isFunction = function isFunction(a) {
+  return typeof a === 'function';
+};
+var isDefined = function isDefined(a) {
+  return typeof a !== 'undefined';
+};
+var isUndefined = function isUndefined(a) {
+  return typeof a === 'undefined';
+};
+var isObject = function isObject(a) {
+  return a !== null && typeof a === 'object';
+};
+
+// from https://github.com/npm-dom/is-dom/blob/master/index.js
+function isNode(val) {
+  if (!isObject(val)) {
+    return false;
+  }
+  if (isDefined(window) && isObject(window.Node)) {
+    return val instanceof window.Node;
+  }
+  return typeof val.nodeType === 'number' && typeof val.nodeName === 'string';
+}
 
 var svgStyles = { // Whitelist of CSS styles and default values
   'alignment-baseline': 'auto',
@@ -96,32 +122,6 @@ var svgAttrs = [// white list of attributes
 // http://www.w3.org/TR/SVG/propidx.html
 // via https://github.com/svg/svgo/blob/master/plugins/_collections.js
 var inheritableAttrs = ['clip-rule', 'color', 'color-interpolation', 'color-interpolation-filters', 'color-profile', 'color-rendering', 'cursor', 'direction', 'fill', 'fill-opacity', 'fill-rule', 'font', 'font-family', 'font-size', 'font-size-adjust', 'font-stretch', 'font-style', 'font-variant', 'font-weight', 'glyph-orientation-horizontal', 'glyph-orientation-vertical', 'image-rendering', 'kerning', 'letter-spacing', 'marker', 'marker-end', 'marker-mid', 'marker-start', 'pointer-events', 'shape-rendering', 'stroke', 'stroke-dasharray', 'stroke-dashoffset', 'stroke-linecap', 'stroke-linejoin', 'stroke-miterlimit', 'stroke-opacity', 'stroke-width', 'text-anchor', 'text-rendering', 'transform', 'visibility', 'white-space', 'word-spacing', 'writing-mode'];
-
-/* Some simple utilities */
-
-var isFunction = function isFunction(a) {
-  return typeof a === 'function';
-};
-var isDefined = function isDefined(a) {
-  return typeof a !== 'undefined';
-};
-var isUndefined = function isUndefined(a) {
-  return typeof a === 'undefined';
-};
-var isObject = function isObject(a) {
-  return a !== null && typeof a === 'object';
-};
-
-// from https://github.com/npm-dom/is-dom/blob/master/index.js
-function isNode(val) {
-  if (!isObject(val)) {
-    return false;
-  }
-  if (isDefined(window) && isObject(window.Node)) {
-    return val instanceof window.Node;
-  }
-  return typeof val.nodeType === 'number' && typeof val.nodeName === 'string';
-}
 
 /* Some utilities for cloning SVGs with inline styles */
 // Removes attributes that are not valid for SVGs
@@ -266,7 +266,11 @@ var SvgSaver = (function () {
       if (!filename || filename === '') {
         filename = (el.getAttribute('title') || 'untitled') + '.' + ext;
       }
-      return encodeURI(filename);
+      if (this.encodeFilename) {
+        return encodeURI(filename);
+      } else {
+        return filename;
+      }
     }
 
     /**
@@ -286,11 +290,14 @@ var SvgSaver = (function () {
 
     var attrs = _ref.attrs;
     var styles = _ref.styles;
+    var _ref$encodeFilename = _ref.encodeFilename;
+    var encodeFilename = _ref$encodeFilename === undefined ? true : _ref$encodeFilename;
 
     _classCallCheck(this, SvgSaver);
 
     this.attrs = attrs === undefined ? svgAttrs : attrs;
     this.styles = styles === undefined ? svgStyles : styles;
+    this.encodeFilename = encodeFilename;
   }
 
   /**

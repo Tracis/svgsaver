@@ -1,10 +1,11 @@
+import FileSaver from 'file-saver';
+
+import { cloneSvg } from './clonesvg';
 /* global Blob */
 
-import {svgAttrs, svgStyles, inheritableAttrs} from './collection';
-import {cloneSvg} from './clonesvg';
-import {saveUri, savePng, createCanvas} from './saveuri';
-import {isDefined, isFunction, isUndefined, isNode} from './utils';
-import FileSaver from 'file-saver';
+import { inheritableAttrs, svgAttrs, svgStyles } from './collection';
+import { createCanvas, savePng, saveUri } from './saveuri';
+import { isDefined, isFunction, isNode, isUndefined } from './utils';
 
 const isIE11 = !!window.MSInputMethodContext && !!document.documentMode;
 
@@ -36,7 +37,11 @@ export class SvgSaver {
     if (!filename || filename === '') {
       filename = (el.getAttribute('title') || 'untitled') + '.' + ext;
     }
-    return encodeURI(filename);
+    if (this.encodeFilename) {
+      return encodeURI(filename);
+    } else {
+      return filename;
+    }
   }
 
   /**
@@ -49,9 +54,10 @@ export class SvgSaver {
   * var svg = document.querySelector('#mysvg');         // find the SVG element
   * svgsaver.asSvg(svg);                                // save as SVG
   */
-  constructor ({ attrs, styles } = {}) {
+  constructor ({ attrs, styles, encodeFilename = true } = {}) {
     this.attrs = (attrs === undefined) ? svgAttrs : attrs;
     this.styles = (styles === undefined) ? svgStyles : styles;
+    this.encodeFilename = encodeFilename;
   }
 
   /**
