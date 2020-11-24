@@ -13,8 +13,10 @@ Download an SVG element as an SVG or PNG file, including CSS defined styles.
 [![License][license-badge]][MIT License]
 
 ## Features
+- Fork from [svgsaver](https://github.com/Hypercubed/svgsaver)
 - Download `<svg>` by element object.
-- Download as SVG or PNG file.
+- Download as SVG or PNG or JPG or other `image` file.
+- Support custom `MIME` type.
 - Copies SVG element styles as rendered in the browser, including styles defined in CSS style sheets.
 - Copies only SVG relevant and non-default styles.  [See here](http://www.w3.org/TR/SVG/propidx.html).
 - Computed styles are in-lined for maximum compatibility.
@@ -24,19 +26,13 @@ Download an SVG element as an SVG or PNG file, including CSS defined styles.
 ### Node
 
 ```js
-npm install svgsaver
+npm install @sedan-utils/svgsaver
 ```
 
 ### Bower
 
 ```js
-bower install svgsaver
-```
-
-### JSPM
-
-```js
-jspm install svgsaver=npm:svgsaver
+bower install @sedan-utils/svgsaver
 ```
 
 ## Usage
@@ -50,6 +46,9 @@ var SvgSaver = require('svgsaver');                 // if using CommonJS environ
 var svgsaver = new SvgSaver();                      // creates a new instance
 var svg = document.querySelector('#mysvg');         // find the SVG element
 svgsaver.asSvg(svg);                                // save as SVG
+svgsaver.asPng(svg);                                // save as Png
+svgsaver.asJpg(svg);                                // save as JPG
+svgsaver.as(svg, 'filename', 'image/jpeg', jpeg);                                // save as other image type
 ```
 
 ### Demos
