@@ -59,10 +59,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/Hypercubed/svgsaver.git"
+    "url": "https://github.com/Tracis/svgsaver.git"
   },
   "bugs": {
-    "url": "https://github.com/Hypercubed/svgsaver/issues"
+    "url": "https://github.com/Tracis/svgsaver/issues"
   },
-  "homepage": "https://github.com/Hypercubed/svgsaver#readme"
+  "homepage": "https://github.com/Tracis/svgsaver#readme"
 }
